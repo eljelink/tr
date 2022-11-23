@@ -17,8 +17,6 @@
 #include "ers/Issue.hpp"
 #include "daqdataformats/TriggerRecord.hpp"
 
-
-
 #include <atomic>
 #include <memory>
 #include <limits>
@@ -51,11 +49,7 @@ void do_stop(const nlohmann::json& obj);
 dunedaq::utilities::WorkerThread thread_;
 void do_work(std::atomic<bool>&);
 
-//Configuration
-//using source_t=dunedaq::iomanager::ReceiverConcept<daqdataformats::TriggerRecord>;
-//std::shared_ptr<source_t> inputQueue_;
 std::chrono::milliseconds queueTimeout_;
-
 std::shared_ptr<iomanager::ReceiverConcept<std::unique_ptr<daqdataformats::TriggerRecord>>> m_receiver;
 
 // Statistic counters

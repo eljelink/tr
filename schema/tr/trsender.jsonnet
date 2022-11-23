@@ -15,9 +15,7 @@ local types = {
   
     conf: s.record("Conf", [
                            s.field("runNumber", self.count, 1234,
-                                           doc="Run number"),
-                           s.field("fileIndex", self.count, 0,
-                                           doc="File index"),                                           
+                                           doc="Run number"),                                           
                            s.field("triggerCount", self.count, 1,
                                            doc="Number of the trigger record"),
                            s.field("dataSize", self.count, 1000,

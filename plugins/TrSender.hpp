@@ -33,7 +33,6 @@
 #include <iostream>
 #include <utility>
 
-//using namespace dunedaq::hdf5libs;
 using namespace dunedaq::daqdataformats;
 using namespace dunedaq::detdataformats;
 
@@ -69,36 +68,22 @@ void do_work(std::atomic<bool>&);
 
 //Configuration
 int runNumber;
-int fileIndex;
 int triggerCount;
 int dataSize;
-SourceID::Subsystem stypeToUse;
-DetID::Subdetector dtypeToUse;
-FragmentType ftypeToUse;
+daqdataformats::SourceID::Subsystem stypeToUse;
+detdataformats::DetID::Subdetector dtypeToUse;
+daqdataformats::FragmentType ftypeToUse;
 int elementCount;
 int waitBetweenSends;
 
-/*  // Configuration
-  // size_t m_sleep_msec_while_running;
-  std::chrono::milliseconds m_queue_timeout;
-  dunedaq::daqdataformats::run_number_t m_run_number;
-  daqdataformats::SourceID m_sourceid;
-  uint64_t m_time_tick_diff; // NOLINT (build/unsigned)
-  uint64_t m_frame_size;     // NOLINT (build/unsigned)
-  uint64_t m_response_delay; // NOLINT (build/unsigned)
-  daqdataformats::FragmentType m_fragment_type;
-  std::string m_timesync_topic_name;
-  uint32_t m_pid_of_current_process; // NOLINT (build/unsigned)*/
 
 
 std::chrono::milliseconds queueTimeout_;
-
 std::shared_ptr<iomanager::SenderConcept<std::unique_ptr<daqdataformats::TriggerRecord>>> m_sender;
-//std::map<daqdataformats::SourceID, std::shared_ptr<data_req_sender_t>> m_map_sourceid_connections; 
 trsender::Conf cfg_;
 
 // Statistic counters
-std::atomic<int64_t> receivedConfigurationCount {0};
+std::atomic<int64_t> receivedConfCount {0};
 std::atomic<int> sentCount {0};
 };
 

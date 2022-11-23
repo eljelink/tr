@@ -60,7 +60,6 @@ def cli(config, json_dir):
     the_system.apps["tr-app"] = trapp_gen.get_tr_app(
         nickname = "the-solo-app", 
         number_of_run = tr.run_number,
-        index_of_file = tr.file_index, 
         number_of_trigger = tr.trigger_count,
         size_of_data = tr.data_size,
         subsystem_type = tr.stype_to_use,

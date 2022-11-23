@@ -11,7 +11,6 @@
 
   "tr": {
     "run_number": 1234,
-    "file_index": 0,
     "trigger_count": 100,
     "data_size": 10000,
     "stype_to_use": "Detector_Readout",

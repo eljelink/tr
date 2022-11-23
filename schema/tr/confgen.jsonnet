@@ -21,7 +21,6 @@ local cs = {
   tr: s.record("tr", [
     s.field('name_string', self.string, default="Name", doc='Name parameter'),
     s.field("run_number", self.int8, default=1234, doc="Run number"),
-    s.field("file_index", self.int8, default=0, doc="File index"),                                         
     s.field("trigger_count", self.int8, default=1, doc="Number of the trigger record"),
     s.field("data_size", self.int8, default=1000, doc="Size of the data - fragment size without the size of its header"),
     s.field("stype_to_use", self.string, default="Detector_Readout", doc="Subsystem type"),

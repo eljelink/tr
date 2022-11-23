@@ -23,14 +23,14 @@ def get_tr_app(nickname, number_of_run = 1234, index_of_file = 0, number_of_trig
     """
 
     modules = []
-    modules += [DAQModule(name="ts", plugin="TrSender", conf=trsender.Conf(runNumber=number_of_run, fileIndex=index_of_file, triggerCount = number_of_trigger,
+    modules += [DAQModule(name="ts", plugin="TrSender", conf=trsender.Conf(runNumber=number_of_run, triggerCount = number_of_trigger,
      dataSize = size_of_data, stypeToUse=subsystem_type, dtypeToUse = subdetector_type, ftypeToUse=fragment_type,
       elementCount = number_of_elements, waitBetweenSends = n_wait_ms))]
     modules += [DAQModule(name="r", plugin="Receiver")]
 
 
     mgraph = ModuleGraph(modules)
-    mgraph.connect_modules("ts.output", "r.input", "trigger_record", 10)
+    mgraph.connect_modules("ts.trigger_record_output", "r.trigger_record_input", "trigger_record", 10)
     tr_app = App(modulegraph = mgraph, host = host, name = nickname)
 
     return tr_app

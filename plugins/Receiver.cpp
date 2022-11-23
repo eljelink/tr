@@ -18,7 +18,6 @@
 #include "ers/Issue.hpp"
 #include "daqdataformats/TriggerRecord.hpp"
 
-
 #include <chrono>
 #include <functional>
 #include <thread>
@@ -35,7 +34,7 @@ namespace dunedaq::tr {
 Receiver::Receiver(const std::string& name)
   : dunedaq::appfwk::DAQModule(name)
 , thread_(std::bind(&Receiver::do_work, this, std::placeholders::_1))
-//, inputQueue_(nullptr)
+, m_receiver(nullptr)
 , queueTimeout_(100)
 {
   register_command("start", &Receiver::do_start);
@@ -46,20 +45,13 @@ void
 Receiver::init(const data_t& /* structured args */ iniobj)
 {
 TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  dunedaq::iomanager::ConnectionRef cref;
-  cref.uid = "trigger_record_receiver";
-  m_receiver = get_iom_receiver<std::unique_ptr<daqdataformats::TriggerRecord>>(cref);
-
-
- // auto qi = appfwk::connection_index(iniobj, { "input" });
-//  m_tr_ref = qi["input"];
-/*   try {
-    inputQueue_ = get_iom_receiver<daqdataformats::TriggerRecord>(qi["input"]);
+auto ci = appfwk::connection_index(iniobj, { "trigger_record_input" });
+ try {
+    m_receiver = get_iom_receiver<std::unique_ptr<daqdataformats::TriggerRecord>>(ci["trigger_record_input"]);
   } catch (const ers::Issue& excpt) {
-    throw InvalidQueueFatalError(ERS_HERE, get_name(), "input", excpt);
+    throw InvalidQueueFatalError(ERS_HERE, get_name(), "trigger_record_input", excpt);
   }
-*/TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
-
+TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
 
 void
@@ -70,6 +62,7 @@ Receiver::do_start(const nlohmann::json& /*args*/)
   TLOG() << get_name() << " successfully started";
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
 }
+
 void
 Receiver::do_stop(const nlohmann::json& /*args*/)
 {
@@ -83,52 +76,32 @@ void
 Receiver::do_work(std::atomic<bool>& running_flag)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
-// auto receiver = dunedaq::iomanager::IOManager::get()->get_receiver<daqdataformats::TriggerRecord>(m_tr_ref);
   int receivedCount = 0;
-//  dunedaq::daqdataformats::TriggerRecordHeaderData trh_data;
-//  dunedaq::daqdataformats::TriggerRecordHeader trh(&trh_data);
-//  daqdataformats::TriggerRecord receivedTriggerRecord(trh);
-//auto receivedTriggerRecord = daqdataformats::TriggerRecord;
-//daqdataformats::TriggerRecord tr;
-
-std::unique_ptr<daqdataformats::TriggerRecord> element{ nullptr };
-
-
+  std::unique_ptr<daqdataformats::TriggerRecord> element{ nullptr };
   while (running_flag.load()) {
     bool trWasSuccessfullyReceived = false;
    while (!trWasSuccessfullyReceived && running_flag.load()) {
       TLOG_DEBUG(TLVL_QUEUE) << get_name() << ": Going to receive data from the input queue";
-
-try{
-element = m_receiver->receive(queueTimeout_);
-trWasSuccessfullyReceived = true;
-} catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
+    try{
+    element = m_receiver->receive(queueTimeout_);
+    ++receivedCount;
+    trWasSuccessfullyReceived = true;
+    } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
           std::ostringstream oss_warn;
-          oss_warn << "push to output queue \"" ; //<< thisQueueName << "\"";
+          oss_warn << "push to output queue.";
           ers::warning(dunedaq::iomanager::TimeoutExpired(
             ERS_HERE,
             "Receiver",
             oss_warn.str(),
             std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
         }
-
-
- /*     try {
-	  	    auto TriggerRecordData = inputQueue_-> receive(std::chrono::milliseconds(10));   
- //         receive_trigger_record(tr);
-          trWasSuccessfullyReceived = true;
-          ++receivedCount;
-	        }
-	    catch(const dunedaq::iomanager::TimeoutExpired& excpt) {
-	        continue;
-          }
-*/    }   
-//TLOG_DEBUG(TLVL_QUEUE) << get_name() << ": Received trigger record" << receivedTriggerRecord;
+    }   
+TLOG_DEBUG(TLVL_QUEUE) << get_name() << ": Received trigger record pointer" << element;
 
 }
 
   std::ostringstream oss_summ;
-  oss_summ << ": Exiting do_work() method, received " << receivedCount << " trigger records with content: neslo mi to pridat";
+  oss_summ << ": Exiting do_work() method, received " << receivedCount << " trigger record elements";
   ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
